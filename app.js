@@ -5,15 +5,12 @@
 (function (window) {
     "use strict";
 
-    const AnimationDurationMs = Math.floor(451 * 1.4);
+    const AnimationDurationMs = 451 * Math.SQRT2;
 
-    const fps = new Array(5).fill(0);
-    let el = {};
     let allLamps = [];
     let running = true;
-    let lastT = 0;
-    let tIdx = 0;
     let opacity = null; // will be set to WASM function in loadWASM()
+    let mt = {};
 
     function markBrightestLamps(selector, n) {
         let brighestLamps = [];
@@ -48,14 +45,7 @@
         e.target.setAttribute('disabled', true);
         e.target.style.cursor = 'not-allowed';
         e.target.removeEventListener('click', measure);
-        el.fps.style.display = 'none';
     }
-
-    const mt = {
-        randint: null,
-        seed: null,
-        seed_seq: null,
-    };
 
     function buildTicketPart(side, n) {
         const part = document.querySelector(`#ticket .${side}`);
@@ -73,7 +63,7 @@
                 allLamps.push({
                     el: lamp,
                     offset: mt.randint() % AnimationDurationMs,
-                    animationDuration: AnimationDurationMs - (200 / n) * (mt.randint() % (j + 1)),
+                    animationDuration: AnimationDurationMs - 200 / n * (mt.randint() % (j + 1)),
                 });
             }
             part.append(field);
@@ -90,19 +80,20 @@
     }
 
     async function init(wasmInstance) {
-        opacity = wasmInstance.exports.opacity;
-        mt.n = wasmInstance.exports.n();
-        mt.seed = wasmInstance.exports.init_genrand;
-        mt.seed_seq = wasmInstance.exports.init_by_array;
-        mt.randint = wasmInstance.exports.genrand_int31;
+        const { exports } = wasmInstance;
+        opacity = exports.opacity;
+        mt.seed = exports.init_genrand;
+        mt.seedseq = exports.init_by_array;
+        mt.randint = exports.genrand_int31;
 
-        const BUFSIZE = mt.n;
+        const BUFSIZE = exports.n();
+        const memory = exports.memory;
+        const memView = new Uint32Array(memory.buffer);
         const seeds = new Uint32Array(BUFSIZE);
         crypto.getRandomValues(seeds);
-        const memory = wasmInstance.exports.memory;
-        const memView = new Uint32Array(memory.buffer);
         seeds.forEach((val, idx) => memView[idx] = val);
-        mt.seed_seq(memView.byteOffset, BUFSIZE);
+        mt.seedseq(memView.byteOffset, BUFSIZE);
+
         buildTicketPart("left", 50);
         buildTicketPart("right", 12);
     }
@@ -114,7 +105,7 @@
     async function loadWASM() {
         let instance;
         try {
-            instance = (await WebAssembly.instantiateStreaming(fetch('MT/MT.wasm'))).instance;
+            instance = (await WebAssembly.instantiateStreaming(fetch('MT/mt.wasm'))).instance;
         }
         catch (e) {
             return Promise.reject(e);
@@ -123,9 +114,8 @@
     }
 
     function main() {
-        el.measureButton = document.querySelector('#measure-button');
-        el.measureButton.addEventListener('click', measure);
-        el.fps = document.querySelector('#fps');
+        document.querySelector('#measure-button')
+            .addEventListener('click', measure);
         loadWASM()
             .then(init)
             .then(run)
