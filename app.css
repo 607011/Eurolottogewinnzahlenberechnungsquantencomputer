@@ -1,5 +1,5 @@
 :root {
-    --num-size: 5px;
+    --lamp-size: 5px;
 }
 
 * {
@@ -11,20 +11,29 @@
 body {
     background-color: #444;
     color: #11b43d;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
 }
 
-#fps {
-    text-align: right;
-    font-size: 12px;
-    font-weight: bold;
-    margin-top: 5px;
+main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    padding: 1em;
+    justify-content: center;
+}
+
+footer {
+    flex-grow: 0;
 }
 
 #ticket {
-    padding: 10px;
     display: flex;
     flex-direction: row;
+    width: fit-content;
 }
 
 #ticket .left {
@@ -65,7 +74,7 @@ body {
     color: #f0f0f0;
     user-select: none;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: calc(var(--num-size) * 4);
+    font-size: calc(var(--lamp-size) * 4);
     font-weight: bold;
     text-align: center;
     text-shadow: black 0 0 4px;
@@ -81,27 +90,27 @@ body {
 }
 
 #ticket .left .field .number {
-    line-height: calc(var(--num-size) * 10);
+    line-height: calc(var(--lamp-size) * 10);
 }
 
 #ticket .right .field .number {
-    line-height: calc(var(--num-size) * 3);
+    line-height: calc(var(--lamp-size) * 3);
 }
 
 #ticket .left .field {
-    grid-template-columns: repeat(5, var(--num-size));
-    grid-template-rows: repeat(10, var(--num-size));
+    grid-template-columns: repeat(5, var(--lamp-size));
+    grid-template-rows: repeat(10, var(--lamp-size));
 }
 
 #ticket .right .field {
-    grid-template-columns: repeat(4, var(--num-size));
-    grid-template-rows: repeat(3, var(--num-size));
+    grid-template-columns: repeat(4, var(--lamp-size));
+    grid-template-rows: repeat(3, var(--lamp-size));
 }
 
 #ticket .field .lamp {
     display: inline-block;
-    width: var(--num-size);
-    height: var(--num-size);
+    width: var(--lamp-size);
+    height: var(--lamp-size);
     border-radius: 50%;
     background-color: #0bdc42;
     color: #eee;
@@ -125,9 +134,8 @@ button {
     border: 1px solid #787878;
     background-color: #e8e8e8;
     padding: 0.5ex 0.5em;
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: bold;
     cursor: pointer;
+    min-height: 44px;
 }
 
 button:hover {
@@ -140,14 +148,4 @@ button:active {
 
 button:disabled {
     background-color: #333;
-}
-
-footer {
-    padding: 4px 10px;
-    width: calc(var(--num-size) * 50);
-    display: block;
-}
-
-footer > * {
-    margin-right: 14px;
 }
