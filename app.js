@@ -86,11 +86,6 @@
         allLamps.forEach(lamp => {
             lamp.el.style.opacity = opacity(lamp.offset, t, lamp.animationDuration);
         });
-        fps[tIdx] = 1000 / (t - lastT);
-        if (++tIdx === fps.length)
-            tIdx = 0;
-        lastT = t;
-        el.fps.textContent = `${Math.round(fps.reduce((a, b) => a + b, 0) / fps.length)}/s`;
         window.requestAnimationFrame(update);
     }
 
